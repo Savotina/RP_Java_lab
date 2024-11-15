@@ -1,8 +1,10 @@
 package net.RMI.Client;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -13,6 +15,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import net.command.SerializableCommand;
 
+import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,12 +38,10 @@ public class ClientController {
     private Button play_button;
 
     private Set<String> drawnCircles;
-    //SerializableCommand circles_info;
-
     private GraphicsContext gc;
+    int cellSize;
 
     Color[] colors = {Color.BLACK, Color.WHITE};
-    int count = 0;
     private final String[] move_color = {"чёрных", "чёрных", "белых", "белых"};
     private final String[] win_color = {" чёрный", " белый"};
 
@@ -55,8 +57,9 @@ public class ClientController {
 
     @FXML
     public void initialize() {
-        // Устанавливаем размеры ячеек сетки
-        int cellSize = 50;
+        cellSize = (int) gameGrid.getPrefWidth() / gameGrid.getColumnConstraints().size();;
+        System.out.println(gameGrid.getPrefWidth() + " и " + gameGrid.getColumnConstraints().size());
+
         for (ColumnConstraints column : gameGrid.getColumnConstraints()) {
             column.setMinWidth(cellSize);
             column.setPrefWidth(cellSize);
@@ -66,8 +69,8 @@ public class ClientController {
             row.setPrefHeight(cellSize);
         }
 
-        gc = gameCanvas.getGraphicsContext2D();
         drawnCircles = new HashSet<>();
+        gc = gameCanvas.getGraphicsContext2D();
 
         gameCanvas.setOnMouseClicked(this::handleMouseClick);
     }
@@ -75,9 +78,11 @@ public class ClientController {
     private void handleMouseClick(MouseEvent event) {
         double x = event.getX();
         double y = event.getY();
+        System.out.println("Click was here: " + x + ", " + y);
 
-        // Определите, попал ли клик на пересечение линий сетки
+
         double[] intersection = isIntersectionClicked(x, y);
+        System.out.println(Arrays.toString(intersection));
 
         if (intersection != null) {
             int[] centers = new int[intersection.length];
@@ -85,125 +90,86 @@ public class ClientController {
                 centers[i] = (int) Math.round(intersection[i]);
             }
 
-            System.out.println(centers[0] + ", " + centers[1]);
+            //System.out.println(centers[0] + ", " + centers[1]);
             if (!isCircleDrawed(centers[0], centers[1], client.getColor())) {
                 drawCircle(gameCanvas.getGraphicsContext2D(), centers[0], centers[1], client.getColor());
                 SerializableCommand circles_info = new SerializableCommand(drawnCircles);
-                client.SetCirclesInfo(circles_info, (int)gameCanvas.getHeight());
+                client.setGameInfo(circles_info, (int)gameCanvas.getHeight());
             }
         }
     }
 
     private boolean isCircleDrawed(int x, int y, int color) {
         boolean res = true;
+        String info = "Кружок уже нарисован в этом месте";
 
         String circleKey_black = x + "," + y + "," + 0;
         String circleKey_white = x + "," + y + "," + 1;
-        System.out.println("circleKey_black: " + circleKey_black);
-        System.out.println("circleKey_white: " + circleKey_white);
 
         if (!drawnCircles.contains(circleKey_black) && !drawnCircles.contains(circleKey_white)) {
             res = false;
             String circleKey = x + "," + y + "," + color;
             drawnCircles.add(circleKey);
-            System.out.println("No");
+            info = "Кружок успешно нарисован";
         }
-        else {
-            System.out.println("Yes");
-        }
+
+        System.out.println(info);
         return res;
     }
 
     private double[] isIntersectionClicked(double x, double y) {
-        int tolerance = 5; // Размер области пересечения, в которую нужно кликнуть
+        int area = 10;
 
-        // Получаем размеры ячеек сетки
-        double cellWidth = gameGrid.getPrefWidth() / gameGrid.getColumnConstraints().size();
-        double cellHeight = gameGrid.getPrefHeight() / gameGrid.getRowConstraints().size();
-
-        System.out.println(cellWidth + ", " + cellHeight);
-
-        // Вычисляем смещение между GridPane и Canvas
         double offsetX = (gameCanvas.getWidth() - gameGrid.getPrefWidth()) / 2;
         double offsetY = (gameCanvas.getHeight() - gameGrid.getPrefHeight()) / 2;
-
         System.out.println("offsets:" + offsetX + ", " + offsetY);
 
-        // Применяем смещение к координатам клика
-        double adjustedX = x - offsetX;
-        double adjustedY = y - offsetY;
+        double realX = x - offsetX;
+        double realY = y - offsetY;
 
-        // Проверяем, попал ли клик на пересечение линий сетки
-        int row = (int) (adjustedY / cellHeight);
-        int col = (int) (adjustedX / cellWidth);
+        int row = (int) (realY / cellSize);
+        int col = (int) (realX / cellSize);
 
-        double cornerX = col * cellWidth + offsetX;
-        double cornerY = row * cellHeight + offsetY;
+        double cornerX = col * cellSize + offsetX;
+        double cornerY = row * cellSize + offsetY;
 
-        // Проверяем, попал ли клик в одну из областей углов ячейки
-        boolean isTopLeftCorner = (adjustedX >= cornerX - offsetX && adjustedX <= cornerX - offsetX + tolerance && adjustedY >= cornerY - offsetY && adjustedY <= cornerY - offsetY + tolerance);
-        boolean isTopRightCorner = (adjustedX >= cornerX + cellWidth - tolerance - offsetX && adjustedX <= cornerX + cellWidth - offsetX && adjustedY >= cornerY - offsetY && adjustedY <= cornerY - offsetY + tolerance);
-        boolean isBottomLeftCorner = (adjustedX >= cornerX - offsetX && adjustedX <= cornerX - offsetX + tolerance && adjustedY >= cornerY + cellHeight - tolerance - offsetY && adjustedY <= cornerY + cellHeight - offsetY);
-        boolean isBottomRightCorner = (adjustedX >= cornerX + cellWidth - tolerance - offsetX && adjustedX <= cornerX + cellWidth - offsetX && adjustedY >= cornerY + cellHeight - tolerance - offsetY && adjustedY <= cornerY + cellHeight - offsetY);
+        boolean isTopLeftCorner = (realX >= cornerX - offsetX && realX <= cornerX - offsetX + area && realY >= cornerY - offsetY && realY <= cornerY - offsetY + area);
+        boolean isTopRightCorner = (realX >= cornerX + cellSize - area - offsetX && realX <= cornerX + cellSize - offsetX && realY >= cornerY - offsetY && realY <= cornerY - offsetY + area);
+        boolean isBottomLeftCorner = (realX >= cornerX - offsetX && realX <= cornerX - offsetX + area && realY >= cornerY + cellSize - area - offsetY && realY <= cornerY + cellSize - offsetY);
+        boolean isBottomRightCorner = (realX >= cornerX + cellSize - area - offsetX && realX <= cornerX + cellSize - offsetX && realY >= cornerY + cellSize - area - offsetY && realY <= cornerY + cellSize - offsetY);
 
         if (isTopLeftCorner) {
             return new double[]{cornerX, cornerY};
         } else if (isTopRightCorner) {
-            return new double[]{cornerX + cellWidth, cornerY};
+            return new double[]{cornerX + cellSize, cornerY};
         } else if (isBottomLeftCorner) {
-            return new double[]{cornerX, cornerY + cellHeight};
+            return new double[]{cornerX, cornerY + cellSize};
         } else if (isBottomRightCorner) {
-            return new double[]{cornerX + cellWidth, cornerY + cellHeight};
+            return new double[]{cornerX + cellSize, cornerY + cellSize};
         }
 
         return null;
     }
 
     private void drawCircle(GraphicsContext gc, int x, int y, int color) {
-        /*if (count >= colors.length)
-            count = 0;*/
         gc.setFill(colors[color]);
-        gc.fillOval(x - 10, y - 10, 20, 20); // Рисуем кружок радиусом 5 пикселей
-        //count++;
+        gc.fillOval(x - 10, y - 10, 20, 20);
     }
 
     @FXML
     void onButtonClicked() {
-        System.out.println("Button was clicked");
-
         String button_txt = play_button.getText();
         try {
             if (button_txt.equals("Играть")) {
+                System.out.println("Вы нажали кнопку 'Играть'");
                 play_button.setDisable(true);
 
-                // Отправка запроса на сервер
-
-                    String[] response = client.notifyButtonClicked();
-                    System.out.println("Server response: " + response[0]);
-
-                    /*if (response[1].equals("0")) {
-                        your_circle.setFill(Color.BLACK);
-                        opponent_circle.setFill(Color.WHITE);
-                        gameCanvas.setDisable(false);
-                    }
-
-                    else {
-                        your_circle.setFill(Color.WHITE);
-                        opponent_circle.setFill(Color.BLACK);
-                        gameCanvas.setDisable(true);
-                    }*/
-
-                    /*if (response[0].equals("Game started")) {
-                        // Логика для начала игры
-                        System.out.println("Game started!");
-                        //move.setText(move_color[client.getMove()]);
-                        //label_state.setText("Ход");
-                    }*/
-
+                String response = client.notifyButtonClicked();
+                System.out.println(response);
 
             } else if (button_txt.equals("Сдаться")) {
-                System.out.println("Reset the game?");
-                client.ResetButtonClicked(client.getColor());
+                System.out.println("Вы сдались");
+                client.resetButtonClicked(client.getColor());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,21 +178,22 @@ public class ClientController {
 
     @FXML
     void mouseButtonPressed(MouseEvent event) {
-        System.out.println("Button changed color");
+        //System.out.println("Button changed color");
         play_button.setStyle("-fx-border-color: black; -fx-border-radius: 10; -fx-background-color: #e1a75b; -fx-background-radius: 10; -fx-max-width: 150;"); // Красный цвет
     }
 
     @FXML
     void mouseButtonReleased(MouseEvent event) {
-        System.out.println("Button changed color");
+        //System.out.println("Button changed color");
         play_button.setStyle("-fx-border-color: black; -fx-border-radius: 10; -fx-background-color: #dc9942; -fx-background-radius: 10; -fx-max-width: 150;");
     }
 
-    // Обновление интерфейса пользователя при начале игры
     public void updateGameStartedUI() {
-        System.out.println("Updating UI for game start");
+        System.out.println("Игра началась. Обновление игрового поля");
+
         gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
         move.setText(move_color[client.getMove()]);
+
         label_state.setText("Ход ");
         play_button.setText("Сдаться");
         play_button.setDisable(false);
@@ -241,10 +208,7 @@ public class ClientController {
     }
 
     public void updateMoveUI(SerializableCommand command) {
-        // Логика для обновления интерфейса пользователя при получении хода
-        System.out.println("Updating UI for received move: " + command.circles);
-        // Здесь вы можете обновить интерфейс пользователя для отображения хода
-
+        System.out.println("Обновляю игровое поле, координаты&цвета нарисованных кружков: " + command.circles);
         drawnCircles = command.circles;
 
         for (String circle : command.circles) {
@@ -256,46 +220,66 @@ public class ClientController {
         }
     }
 
-    // Определение хода
     public void ProcessMove(int client_move) {
-
-        //int mv = client.getMove();
-        //System.out.println("move:" + client.getMove());
-        //System.out.println("color:" + client.getColor());
-
         int client_color = client.getColor();
         if (client_move == 2) {
             gameCanvas.setDisable(client_color == 0);
-            //System.out.println("setDisable: false");
         }
         else if (client_move == 0) {
             gameCanvas.setDisable(client_color == 1);
-            //System.out.println("setDisable: true");
         }
 
         client.setMove(client_color);
-        this.move.setText(move_color[client_move]);
+        move.setText(move_color[client_move]);
     }
 
     public void updateClientColor(int color) {
-        // Логика для обновления интерфейса пользователя при изменении цвета клиента
         if (color == 0) {
             your_circle.setFill(Color.BLACK);
             opponent_circle.setFill(Color.WHITE);
-        } else {
+        } else if (color == 1) {
             your_circle.setFill(Color.WHITE);
             opponent_circle.setFill(Color.BLACK);
         }
+        else {
+            your_circle.setFill(Color.TRANSPARENT);
+            opponent_circle.setFill(Color.TRANSPARENT);
+        }
     }
 
-    // Обновление после сброса игры (использовать, если игрок победил?)
     public void udpateAfterReset(int color) {
         drawnCircles.clear();
         play_button.setText("Играть");
-        //your_circle.setFill(Color.TRANSPARENT);
-        //opponent_circle.setFill(Color.TRANSPARENT);
         gameCanvas.setDisable(true);
         label_state.setText("Победитель");
         move.setText(win_color[color]);
+    }
+
+    public void RejectRequest() {
+        Platform.runLater(() -> {
+            drawnCircles.clear();
+            play_button.setDisable(false);
+            gc.clearRect(0, 0, gameCanvas.getWidth(), gameCanvas.getHeight());
+
+            label_state.setText("");
+            move.setText("");
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Уведомление");
+            alert.setHeaderText("Игра уже началась!");
+            alert.setContentText("Вы не можете присоединиться к игре, так как игра уже идёт.");
+
+            alert.showAndWait();
+        });
+    }
+
+    public void CloseConnection() throws RemoteException {
+        Platform.runLater(() -> {
+            try {
+                client.closeConnection();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
