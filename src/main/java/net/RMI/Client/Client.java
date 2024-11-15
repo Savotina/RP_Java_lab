@@ -28,9 +28,9 @@ public class Client extends UnicastRemoteObject implements RemoteClientCallback 
         }
     }
 
-    public void setGameInfo(SerializableCommand command, int canvas_size) {
+    public void setGameInfo(SerializableCommand command, int canvas_size, int columnCount) {
         try {
-            service.gameInfo(command, canvas_size);
+            service.gameInfo(command, canvas_size, columnCount);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,10 +49,10 @@ public class Client extends UnicastRemoteObject implements RemoteClientCallback 
     public void receiveGameInfo(SerializableCommand command, int move, int winner) throws RemoteException {
         Platform.runLater(() -> {
             controller.updateMoveUI(command);
-            if (winner == -1)
+            if (winner == -1 && move != -1)
                 controller.ProcessMove(move);
             else
-                controller.udpateAfterReset(winner);
+                controller.udpateAfterReset(winner, move);
         });
     }
 
@@ -65,7 +65,7 @@ public class Client extends UnicastRemoteObject implements RemoteClientCallback 
     @Override
     public void resetClientsGame(SerializableCommand command, int color) throws RemoteException {
         Platform.runLater(() -> {
-            controller.udpateAfterReset(color);
+            controller.udpateAfterReset(color, move);
         });
     }
 

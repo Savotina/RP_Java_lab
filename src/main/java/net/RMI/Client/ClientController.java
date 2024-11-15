@@ -16,7 +16,6 @@ import javafx.scene.shape.Circle;
 import net.command.SerializableCommand;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,6 +39,7 @@ public class ClientController {
     private Set<String> drawnCircles;
     private GraphicsContext gc;
     int cellSize;
+    int columnCount;
 
     Color[] colors = {Color.BLACK, Color.WHITE};
     private final String[] move_color = {"чёрных", "чёрных", "белых", "белых"};
@@ -57,8 +57,8 @@ public class ClientController {
 
     @FXML
     public void initialize() {
-        cellSize = (int) gameGrid.getPrefWidth() / gameGrid.getColumnConstraints().size();;
-        System.out.println(gameGrid.getPrefWidth() + " и " + gameGrid.getColumnConstraints().size());
+        cellSize = (int) gameGrid.getPrefWidth() / gameGrid.getColumnConstraints().size();
+        columnCount = gameGrid.getColumnConstraints().size();
 
         for (ColumnConstraints column : gameGrid.getColumnConstraints()) {
             column.setMinWidth(cellSize);
@@ -78,11 +78,8 @@ public class ClientController {
     private void handleMouseClick(MouseEvent event) {
         double x = event.getX();
         double y = event.getY();
-        System.out.println("Click was here: " + x + ", " + y);
-
 
         double[] intersection = isIntersectionClicked(x, y);
-        System.out.println(Arrays.toString(intersection));
 
         if (intersection != null) {
             int[] centers = new int[intersection.length];
@@ -94,7 +91,7 @@ public class ClientController {
             if (!isCircleDrawed(centers[0], centers[1], client.getColor())) {
                 drawCircle(gameCanvas.getGraphicsContext2D(), centers[0], centers[1], client.getColor());
                 SerializableCommand circles_info = new SerializableCommand(drawnCircles);
-                client.setGameInfo(circles_info, (int)gameCanvas.getHeight());
+                client.setGameInfo(circles_info, (int)gameCanvas.getHeight(), columnCount);
             }
         }
     }
@@ -113,7 +110,7 @@ public class ClientController {
             info = "Кружок успешно нарисован";
         }
 
-        System.out.println(info);
+        //System.out.println(info);
         return res;
     }
 
@@ -122,7 +119,6 @@ public class ClientController {
 
         double offsetX = (gameCanvas.getWidth() - gameGrid.getPrefWidth()) / 2;
         double offsetY = (gameCanvas.getHeight() - gameGrid.getPrefHeight()) / 2;
-        System.out.println("offsets:" + offsetX + ", " + offsetY);
 
         double realX = x - offsetX;
         double realY = y - offsetY;
@@ -208,7 +204,7 @@ public class ClientController {
     }
 
     public void updateMoveUI(SerializableCommand command) {
-        System.out.println("Обновляю игровое поле, координаты&цвета нарисованных кружков: " + command.circles);
+        //System.out.println("Обновляю игровое поле, координаты и цвета нарисованных кружков: " + command.circles);
         drawnCircles = command.circles;
 
         for (String circle : command.circles) {
@@ -229,6 +225,7 @@ public class ClientController {
             gameCanvas.setDisable(client_color == 1);
         }
 
+        System.out.println("Ход " + move_color[client_move]);
         client.setMove(client_color);
         move.setText(move_color[client_move]);
     }
@@ -247,12 +244,20 @@ public class ClientController {
         }
     }
 
-    public void udpateAfterReset(int color) {
+    public void udpateAfterReset(int color, int mv) {
         drawnCircles.clear();
         play_button.setText("Играть");
         gameCanvas.setDisable(true);
-        label_state.setText("Победитель");
-        move.setText(win_color[color]);
+
+        if (color == -1 && mv == -1) {
+            label_state.setText("Результат:");
+            move.setText(" ничья");
+        }
+        else {
+            label_state.setText("Победитель");
+            move.setText(win_color[color]);
+            System.out.println("Победитель:" + win_color[color]);
+        }
     }
 
     public void RejectRequest() {

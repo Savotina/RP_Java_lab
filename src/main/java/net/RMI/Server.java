@@ -32,7 +32,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
     }
 
     @Override
-    public void gameInfo(SerializableCommand command, int grid_size) throws RemoteException {
+    public void gameInfo(SerializableCommand command, int grid_size, int columnCount) throws RemoteException {
         winner = WinnerCheck(command, grid_size);
 
         move++;
@@ -41,12 +41,21 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
         }
 
         circles_info = command;
+        int cellCount = (columnCount + 1) * (columnCount + 1);
+        //System.out.println("cellCount: " + cellCount);
+        //System.out.println("circles_info: " + circles_info.circles.size());
+
+
+        if (winner == -1 && circles_info.circles.size() == cellCount) {
+            move = -1;
+            System.out.println("Результат игры: ничья");
+        }
 
         for (RemoteClientCallback clientCallback : clientCallbacks) {
             clientCallback.receiveGameInfo(circles_info, move, winner);
         }
 
-        if (winner != -1) {
+        if (winner != -1 || circles_info.circles.size() == cellCount) {
             circles_info.circles.clear();
             ready_clients.clear();
             clientCallbacks.clear();
@@ -100,7 +109,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
 
         circles_info.circles.clear();
 
-        System.out.println("Сброс игры");
+        System.out.println("Игрок " + color + " сдался");
 
         clientCallbacks.add(callback);
         for (RemoteClientCallback clientCallback : clientCallbacks) {
@@ -144,11 +153,11 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
                 else if (command.circles.contains(white_circle)) color = 1;
                 else color = -1;
 
-                System.out.println(i + "," + j + "," + color);
+                /*System.out.println(i + "," + j + "," + color);
                 System.out.println((i+50) + "," + j + "," + color + '\n' + (i+100) + "," + j + "," + color + '\n' + (i+150) + "," + j + "," + color
                         + "\n" + (i+200) + "," + j + "," + color + "\n" + (i+250) + "," + j + "," + color + "\n");
 
-                /*System.out.println(command.circles);
+                System.out.println(command.circles);
 
                 System.out.println(command.circles.contains((i+50) + "," + j + "," + color));
                 System.out.println(command.circles.contains((i+100) + "," + j + "," + color));
@@ -166,7 +175,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
                     System.out.println("Выиграл: " + color + " по строке");
                     return color;
                 }
-                else System.out.println("Игра продолжается");
+                //else System.out.println("Игра продолжается");
             }
         }
 
@@ -189,7 +198,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
                     System.out.println("Выиграл: " + color + " по столбцу");
                     return color;
                 }
-                else System.out.println("Игра продолжается");
+                //else System.out.println("Игра продолжается");
             }
         }
 
@@ -213,7 +222,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
                     System.out.println("Выиграл: " + color + " по диагонали (слева направо)");
                     return color;
                 }
-                else System.out.println("Игра продолжается");
+                //else System.out.println("Игра продолжается");
             }
         }
 
@@ -237,11 +246,11 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
                     System.out.println("Выиграл: " + color + " по диагонали (справа налево)");
                     return color;
                 }
-                else System.out.println("Игра продолжается");
+                //else System.out.println("Игра продолжается");
             }
         }
 
-        System.out.println("Никто не выиграл");
+        //System.out.println("Никто не выиграл. Игра продолжается");
         return -1;
     }
 
@@ -251,7 +260,7 @@ public class Server extends UnicastRemoteObject implements RemoteConnect6_gameSe
             RemoteConnect6_gameServer service = new Server();
             registry.rebind("RemoteConnect6_gameServer", service);
 
-            System.out.println("Server is ready.");
+            System.out.println("Сервер запущен");
         } catch (Exception e) {
             e.printStackTrace();
         }
