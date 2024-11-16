@@ -143,7 +143,6 @@ public class ClientController {
         } else if (isBottomRightCorner) {
             return new double[]{cornerX + cellSize, cornerY + cellSize};
         }
-
         return null;
     }
 
