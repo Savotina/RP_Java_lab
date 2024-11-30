@@ -1,0 +1,58 @@
+syntax = "proto3";
+package grpc.Connect6Service;
+option java_multiple_files = true;
+option java_package = "grpc.Connect6Service";
+option java_outer_classname = "Connect6ServiceProto";
+
+message ConnectionRequest {
+    string clientId = 1;
+}
+
+message ConnectionResponse {
+    string clientId = 1;
+    string message = 2;
+    GameInfoResponse gameInfoResp = 3;
+    ResetGameResponse resetGameResp = 4;
+}
+
+message StartGameRequest {
+    string clientId = 1;
+}
+
+message StartGameResponse {
+    bool reject = 1;
+    int32 color = 2;
+}
+
+message GameInfoRequest {
+    repeated string circles = 1;
+}
+
+message GameInfoResponse {
+    repeated string circles = 1;
+    int32 move = 2;
+    int32 winner = 3;
+}
+
+message ResetGameRequest {
+    int32 color = 2;
+}
+
+message ResetGameResponse {
+    int32 winner = 2;
+}
+
+message CloseConnectionRequest {
+    string clientId = 1;
+}
+
+message CloseConnectionResponse {
+}
+
+service Connect6Service {
+    rpc connectionService(ConnectionRequest) returns (stream ConnectionResponse);
+    rpc startGameService(StartGameRequest) returns (StartGameResponse);
+    rpc gameInfoService(GameInfoRequest) returns (GameInfoResponse);
+    rpc resetGameService(ResetGameRequest) returns (ResetGameResponse);
+    rpc closeConnectionService(CloseConnectionRequest) returns (CloseConnectionResponse);
+}
