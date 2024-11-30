@@ -5,7 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import javafx.application.Platform;
-import net.RMI.Client.ClientController;
+import net.client.ClientController;
 import net.command.SerializableCommand;
 
 import java.util.HashSet;
@@ -35,18 +35,18 @@ public class GameClient {
 
     public void ConnectionToServer() {
         ConnectionRequest connectRequest = ConnectionRequest.newBuilder().setClientId(clientId).build();
-        System.out.println("Подключение к серверу...");
+        System.out.println("Подключение к серверу");
 
         asyncStub.connectionService(connectRequest, new StreamObserver<>() {
             @Override
             public void onNext(ConnectionResponse connectionResponse) {
-                if (connectionResponse.getMessage().equals("connect")) {
-                    System.out.println("Соединение с сервером установлено!");
-                } else if (connectionResponse.getMessage().equals("start")) {
+                if (connectionResponse.getMessage().equals("CONNECTION")) {
+                    System.out.println("Соединение с сервером установлено");
+                } else if (connectionResponse.getMessage().equals("START")) {
                     System.out.println("Начало игры");
                     Platform.runLater(() -> controller.updateGameStartedUI());
                 }
-                else if (connectionResponse.getMessage().equals("move")) {
+                else if (connectionResponse.getMessage().equals("MOVE")) {
                     System.out.println("Игрок сделал ход");
                     GameInfoResponse gameInfoResp = connectionResponse.getGameInfoResp();
                     Set<String> circles = new HashSet<>(gameInfoResp.getCirclesList());
@@ -61,7 +61,7 @@ public class GameClient {
                             controller.udpateAfterReset(currentWInner, currentMove);
                     });
                 }
-                else if (connectionResponse.getMessage().equals("reset")) {
+                else if (connectionResponse.getMessage().equals("RESET")) {
                     System.out.println("Игра окончена");
                     ResetGameResponse resetGameResp = connectionResponse.getResetGameResp();
                     int currentWinner = resetGameResp.getWinner();
@@ -70,14 +70,13 @@ public class GameClient {
                         controller.udpateAfterReset(currentWinner, move);
                     });
                 }
-                else if (connectionResponse.getMessage().equals("close")) {
+                else if (connectionResponse.getMessage().equals("CLOSE")) {
                     System.out.println("Противник отключился");
 
                     Platform.runLater(() -> {
                         controller.udpateAfterReset(color, move);
                     });
                 }
-                System.out.println("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
             }
 
             @Override
@@ -87,7 +86,7 @@ public class GameClient {
 
             @Override
             public void onCompleted() {
-                System.out.println("Закрытие потока");
+                System.out.println("Завершение потока");
             }
         });
     }

@@ -1,4 +1,4 @@
-package net.RMI.Client;
+package net.client;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 public class ClientApplication extends Application {
 
@@ -17,14 +16,10 @@ public class ClientApplication extends Application {
         stage.setResizable(false);
         stage.setScene(scene);
 
-        /*stage.setOnCloseRequest(event -> {
+        stage.setOnCloseRequest(event -> {
             ClientController sceneController = fxmlLoader.getController();
-            try {
-                sceneController.CloseConnection();
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-        });*/
+            sceneController.CloseConnection();
+        });
 
         stage.show();
     }

@@ -35,7 +35,7 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
 
         streamObservers.put(clientId, responseObserver);
         ConnectionResponse connectionResponse = ConnectionResponse.newBuilder()
-                .setMessage("connect")
+                .setMessage("CONNECTION")
                 .build();
         responseObserver.onNext(connectionResponse);
 
@@ -72,7 +72,7 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
                         if (Objects.equals(client, observerClientId)) {
                             StreamObserver<ConnectionResponse> observer = entry.getValue();
                             ConnectionResponse connectionResponse = ConnectionResponse.newBuilder()
-                                    .setMessage("start")
+                                    .setMessage("START")
                                     .build();
                             observer.onNext(connectionResponse);
                         }
@@ -118,7 +118,7 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
                     StreamObserver<ConnectionResponse> observer = entry.getValue();
 
                     ConnectionResponse connectResp = ConnectionResponse.newBuilder()
-                            .setMessage("move")
+                            .setMessage("MOVE")
                             .setGameInfoResp(gameInfoResp)
                             .build();
                     observer.onNext(connectResp);
@@ -274,7 +274,7 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
                     System.out.println("Сброс игры");
 
                     ConnectionResponse connectionResponse = ConnectionResponse.newBuilder()
-                            .setMessage("reset")
+                            .setMessage("RESET")
                             .setResetGameResp(resetGameResp)
                             .build();
                     observer.onNext(connectionResponse);
@@ -302,7 +302,6 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
 
             if (observerClientId.equals(clientId)) {
                 streamObservers.remove(clientId);
-                readyClients.remove(clientId);
                 observer.onCompleted();
 
                 System.out.println("Игрок " + observerClientId + " покинул сервер");
@@ -310,11 +309,12 @@ public class GameServer extends Connect6ServiceGrpc.Connect6ServiceImplBase {
         }
 
         if (readyClients.contains(clientId)) {
+            readyClients.remove(clientId);
             for (String client : readyClients) {
                 StreamObserver<ConnectionResponse> observer = streamObservers.get(client);
                 if (observer != null) {
                     ConnectionResponse connectionResponse = ConnectionResponse.newBuilder()
-                            .setMessage("close")
+                            .setMessage("CLOSE")
                             .build();
                     observer.onNext(connectionResponse);
                 }

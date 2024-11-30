@@ -1,4 +1,4 @@
-package net.RMI.Client;
+package net.client;
 
 import grpc.GameClient;
 import javafx.application.Platform;
@@ -16,7 +16,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import net.command.SerializableCommand;
 
-import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -173,13 +172,11 @@ public class ClientController {
 
     @FXML
     void mouseButtonPressed(MouseEvent event) {
-        //System.out.println("Button changed color");
         play_button.setStyle("-fx-border-color: black; -fx-border-radius: 10; -fx-background-color: #e1a75b; -fx-background-radius: 10; -fx-max-width: 150;"); // Красный цвет
     }
 
     @FXML
-    void mouseButtonReleased(MouseEvent event) {
-        //System.out.println("Button changed color");
+    void mouseButtonReleased(MouseEvent event) {;
         play_button.setStyle("-fx-border-color: black; -fx-border-radius: 10; -fx-background-color: #dc9942; -fx-background-radius: 10; -fx-max-width: 150;");
     }
 
@@ -272,12 +269,11 @@ public class ClientController {
             alert.setTitle("Уведомление");
             alert.setHeaderText("Игра уже началась!");
             alert.setContentText("Вы не можете присоединиться к игре, так как игра уже идёт.");
-
             alert.showAndWait();
         });
     }
 
-    public void CloseConnection() throws RemoteException {
+    public void CloseConnection() {
         Platform.runLater(() -> {
             try {
                 client.closeConnection();
