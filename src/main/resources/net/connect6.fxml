@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<Pane prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #e7ba7e;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.client.ClientController">
+<Pane prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #e7ba7e;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.ClientController">
 
    <children>
       <HBox prefHeight="700.0" prefWidth="700.0">

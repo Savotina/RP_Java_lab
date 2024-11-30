@@ -1,4 +1,4 @@
-package net.client;
+package net;
 
 import grpc.GameClient;
 import javafx.application.Platform;
@@ -14,7 +14,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import net.command.SerializableCommand;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -90,8 +89,7 @@ public class ClientController {
             //System.out.println(centers[0] + ", " + centers[1]);
             if (!isCircleDrawed(centers[0], centers[1], client.getColor())) {
                 drawCircle(gameCanvas.getGraphicsContext2D(), centers[0], centers[1], client.getColor());
-                SerializableCommand circles_info = new SerializableCommand(drawnCircles);
-                client.setGameInfo(circles_info);
+                client.setGameInfo(drawnCircles);
             }
         }
     }
@@ -199,11 +197,11 @@ public class ClientController {
 
     }
 
-    public void updateMoveUI(SerializableCommand command) {
+    public void updateMoveUI(Set<String> circles) {
         //System.out.println("Обновляю игровое поле, координаты и цвета нарисованных кружков: " + command.circles);
-        drawnCircles = command.circles;
+        drawnCircles = circles;
 
-        for (String circle : command.circles) {
+        for (String circle : drawnCircles) {
             String[] coordinates = circle.split(",");
             int x = Integer.parseInt(coordinates[0]);
             int y = Integer.parseInt(coordinates[1]);

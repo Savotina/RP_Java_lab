@@ -5,8 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import javafx.application.Platform;
-import net.client.ClientController;
-import net.command.SerializableCommand;
+import net.ClientController;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +53,7 @@ public class GameClient {
                     int currentWInner = gameInfoResp.getWinner();
 
                     Platform.runLater(() -> {
-                        controller.updateMoveUI(new SerializableCommand(circles));
+                        controller.updateMoveUI(circles);
                         if (currentWInner == -1 && currentMove != -1)
                             controller.ProcessMove(currentMove);
                         else
@@ -121,9 +120,9 @@ public class GameClient {
         setColor(startResponse.getColor());
     }
 
-    public void setGameInfo(SerializableCommand command) {
+    public void setGameInfo(Set<String> circles) {
         GameInfoRequest gameInfoRequest = GameInfoRequest.newBuilder()
-                .addAllCircles(command.circles).build();
+                .addAllCircles(circles).build();
         GameInfoResponse gameInfoResponse = blockingStub.gameInfoService(gameInfoRequest);
     }
 

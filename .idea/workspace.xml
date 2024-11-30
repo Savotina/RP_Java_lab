@@ -8,14 +8,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/grpc/GameClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grpc/GameClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/grpc/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/grpc/GameServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/Client/Client.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/Client/ClientApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/client/ClientApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/Client/ClientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/client/ClientController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/Client/RemoteClientCallback.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/RemoteConnect6_gameServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/RMI/Server.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/client/ClientApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/ClientApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/client/ClientController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/ClientController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/command/SerializableCommand.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/net/connect6.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/net/connect6.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -53,6 +49,7 @@
   "keyToString": {
     "Application.ClientApplication.executor": "Run",
     "Application.GameServer.executor": "Run",
+    "Application.net.ClientApplication.executor": "Run",
     "Application.net.client.ClientApplication.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -66,7 +63,20 @@
       <recent name="C:\Users\leras\IdeaProjects\RP_lab2\src" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.net.client.ClientApplication">
+  <component name="RunManager" selected="Application.net.ClientApplication">
+    <configuration name="ClientApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="net.client.ClientApplication" />
+      <module name="RP_lab2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="net.client.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="GameServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="grpc.GameServer" />
       <module name="RP_lab2" />
@@ -80,12 +90,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="net.client.ClientApplication" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="net.client.ClientApplication" />
+    <configuration name="net.ClientApplication" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="net.ClientApplication" />
       <module name="RP_lab2" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="net.client.*" />
+          <option name="PATTERN" value="net.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -94,13 +104,15 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.net.client.ClientApplication" />
+      <item itemvalue="Application.net.ClientApplication" />
+      <item itemvalue="Application.ClientApplication" />
       <item itemvalue="Application.GameServer" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.net.client.ClientApplication" />
+        <item itemvalue="Application.net.ClientApplication" />
         <item itemvalue="Application.GameServer" />
+        <item itemvalue="Application.ClientApplication" />
       </list>
     </recent_temporary>
   </component>

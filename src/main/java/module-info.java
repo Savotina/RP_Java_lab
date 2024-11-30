@@ -12,7 +12,6 @@ module org.example.rp_lab2 {
     requires java.annotation;
     requires com.google.gson;
 
-    opens net.client to javafx.fxml;
-    exports net.client;
-    exports net.command to java.rmi;
+    opens net to javafx.fxml;
+    exports net;
 }
